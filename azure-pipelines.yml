@@ -1,0 +1,46 @@
+trigger:
+  - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+    ImageName: 'gameguessr/gameguessr:$(Build.BuildId)'  
+
+stages:
+- stage: Build
+  displayName: Build docker image
+  jobs:  
+  - job: DockerImage
+    displayName: Build image
+    steps:
+    - task: Docker@2
+      displayName: 'Build and push the Docker image'
+      inputs:
+        containerRegistry: 'Docker Hub'
+        repository: 'gameguessr/gameguessr'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+- stage: Deploy
+  displayName: Deploy image to Heroku
+  jobs:  
+  - job: DeployImage
+    displayName: Deploy image to Heroku
+    steps:
+    - script: |
+       curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
+      displayName: 'Install heroku cli'
+    - script: |
+       docker pull $(ImageName)
+       docker tag $(ImageName) registry.heroku.com/gameguessr/web
+       docker push $(ImageName)
+       echo CONTAINER LOGIN
+       heroku container:login
+       echo PUSH
+       heroku container:push -a $HEROKU_APP_NAME web
+       echo RELEASE
+       heroku container:release -a $HEROKU_APP_NAME web
+      displayName: 'Heroku push'
+      env:
+       HEROKU_API_KEY: $(HEROKU_API_KEY)
+       HEROKU_APP_NAME: $(HEROKU_APP_NAME)

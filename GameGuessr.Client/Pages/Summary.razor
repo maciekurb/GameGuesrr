@@ -1,0 +1,106 @@
+﻿@page "/Summary"
+@using GameGuessr.Client.Infrastructure
+@using GameGuessr.Shared
+@using GameGuessr.Client.Application
+@using System.Text
+@inject QuizParams _quizParams
+@inject HttpClient _http
+@inject NavigationManager _navigationManager;
+@inject RankingService _rankingService
+@inject LoaderService _loaderService;
+
+<h3>Your score @_quizParams.Score</h3>
+
+@if (_showForm)
+{
+    <div class="grid">
+        <div class="row justify-content-md-center">
+            <div class="col-md-auto">
+                <input style="margin: 10px" @bind="@Nick" type="text" class="form-control text-center" id="inputNick" placeholder="Enter nickname" maxlength="20">
+            </div>
+        </div>
+        <div class="row justify-content-md-center">
+            <div class="col-md-auto">
+                <input style="margin: 10px" @bind="@Password" type="password" class="form-control text-center" id="inputPassword" placeholder="Password" aria-describedby="passwordWarning" maxlength="20">
+            </div>
+        </div>
+
+        <div class="row justify-content-md-center">
+            <div class="col-md-auto">
+                @if (_incorrectInput)
+                {
+                    <small style="margin: 10px" id="passwordWarning" class="form-text text-muted">Incorrect password</small>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@if (_showButton)
+{
+    <button class="btn btn-primary" @onclick="SaveScore">Save my score</button>
+}
+
+<h1>TOP 10 scores in mode @_quizParams.Mode.ToString()</h1>
+
+<Ranking Mode="@_quizParams.Mode" />
+
+<button class="btn btn-primary" @onclick="@(() => _navigationManager.NavigateTo($"/"))">Play again</button>
+
+@code {
+    
+    private bool _showForm;
+    private bool _showButton = true;
+    private bool _incorrectInput;
+
+    private SaveScoreStatus _saveScoreStatus;
+
+    private async Task SaveScore()
+    {
+        if (_showForm == false)
+        {
+            _showForm = true;
+            return;
+        }
+
+        _loaderService.SetLoaderState(true);
+        await TryToSaveScore().ContinueWith(async saved =>
+        {
+            _saveScoreStatus = await saved;
+            _loaderService.SetLoaderState(false);
+        });
+
+        if (_saveScoreStatus is SaveScoreStatus.WrongPassword or SaveScoreStatus.IncorrectNickFormat or SaveScoreStatus.IncorrectPasswordFormat)
+        {
+            _incorrectInput = true;
+        }
+        else
+        {
+            _showForm = false;
+            _showButton = false;
+        }
+    }
+
+    public string Nick { get; set; }
+    public string Password { get; set; }
+
+    private async Task<SaveScoreStatus> TryToSaveScore()
+    {
+        var playerScore = new PlayerScore
+        {
+            Name = Nick,
+            Password = Encoding.UTF32.GetBytes(Password.ReverseString()),
+            Score = _quizParams.Score,
+            Mode = _quizParams.Mode,
+            Sh = Encoding.UTF32.GetBytes(_quizParams.Score.ToString().ReverseString()) //"碸纲䄶皘鰞斞뒻༧"
+        };
+        
+        var result = await _http.PostAsJsonAsync($"api/Players", playerScore);
+        var status = await result.Content.ReadFromJsonAsync<ValueDto<SaveScoreStatus>>();
+
+        _rankingService.CallRequestRefresh(_quizParams.Mode);
+
+        return status;
+    }
+
+}

@@ -1,0 +1,277 @@
+﻿@page "/Quiz"
+@using GameGuessr.Shared
+@using GameGuessr.Client.Infrastructure
+@using GameGuessr.Client.Application
+@inject QuizParams QuizParams
+@inject HttpClient Http
+@inject NavigationManager _navigationManager;
+@inject LoaderService _loaderService;
+
+<div class="widget-wrap no-select">
+
+    <div id="quizWrap">
+
+        <h2 style="@_timerColor">@GetTime() s</h2>
+        <h3 class="font-weight-bold">@_score points</h3>
+        <p class="font-weight-bold">@_questions/@_roundsTotal</p>
+
+        @if (_isLoading)
+        {
+            <div id="quizQn" class="position-relative" style="width: 720px; height: 480px">
+                <div id="round-points" class="position-absolute top-50 start-50 translate-middle">
+                    <p class="font-weight-bold">@_roundPoints points</p>
+                </div>
+            </div>
+        }
+        else if (QuizParams.Mode == GameMode.Soundtrack && String.IsNullOrEmpty(_gamesQuestion.OstYouTubeQuery) == false)
+        {
+            <img id="quizQn" src="https://media1.giphy.com/media/mTuvku74NSGnC/giphy.gif" width="720" height="480"/>
+        }
+        else
+        {
+            <img id="quizQn" src="@_gamesQuestion.ImgUrl[_hint]" width="720" height="480" @onload="OnImgLoad"/>
+        }
+
+        @if (QuizParams.Mode != GameMode.Soundtrack)
+        {
+            <button style="margin: 20px" type="button" class="@_hintDisabled" @onclick="Hint">Hint</button>
+        }
+        else if (QuizParams.Mode == GameMode.Soundtrack && String.IsNullOrEmpty(_gamesQuestion?.OstYouTubeQuery) == false)
+        {
+            <iframe style="margin: 20px" width="361" height="25" allow="autoplay" @onload="OnImgLoad" src="https://www.youtube.com/embed/@_gamesQuestion.OstYouTubeQuery&autohide=2"></iframe>
+            <svg style="position: absolute;margin-left: -225px;margin-top: 20px;width:205px;height:25px">
+                <rect width="205" height="25" style="fill:rgb(0,0,0);"></rect>
+                Sorry, your browser does not support inline SVG.
+            </svg>
+        }
+
+        <div class="quizAns">
+            @if (_isLoading == false)
+            {
+                foreach (var game in _gamesQuestion.Games)
+                {
+                    <input type="radio" name="quiz" id="@game" @onclick="() => Answer(game)"/>
+                    <label for="@game">@game</label>
+                }
+            }
+            else if (_gamesQuestion != null)
+            {
+                foreach (var game in _gamesQuestion.Games)
+                {
+                    <input type="radio" name="quiz" id="@game"/>
+                    <label class="@GetClass(game)" for="@game">@game</label>
+                }
+            }
+        </div>
+
+
+    </div>
+
+</div>
+
+@code {
+    private GamesQuestion _gamesQuestion;
+    private int _points = 0;
+    private int _questions = 1;
+    private int _hint = 0;
+    private bool _isLoading = true;
+    private string _selectedGame;
+    private string _timerColor;
+    private string _hintDisabled = "";
+    private int _score = 0;
+    private bool _freeHintAvailable = true;
+
+    private int _roundPoints;
+    private int _roundsTotal = 15;
+
+    private int _roundTime = 15;
+    private int _timeBetweenRounds = 1000;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (QuizParams.Mode == GameMode.Soundtrack)
+        {
+            _roundTime = 30;
+            _timeBetweenRounds = 1500;
+        }
+
+        Time = _roundTime * _factor;
+
+        _loaderService.SetLoaderState(true);
+        await Http.GetFromJsonAsync<GamesQuestion>($"api/Games/{QuizParams.Mode}")
+            .ContinueWith(async gamesQuestion =>
+            {
+                _gamesQuestion = await gamesQuestion;
+                _isLoading = false;
+                _loaderService.SetLoaderState(false);
+            });
+
+        if (_gamesQuestion.ImgUrl.Length == 1)
+        {
+            _hintDisabled = "btn btn-danger disabled";
+        }
+        else
+            _hintDisabled = "btn btn-success";
+
+        StartTimerAsync();
+    }
+
+    private async Task Answer(string game)
+    {
+        if (_isLoading)
+            return;
+
+        _selectedGame = game;
+        _isLoading = true;
+        _freezeTime = true;
+        _roundPoints = 0;
+
+        if (game == _gamesQuestion.CorrectGame)
+        {
+            _points++;
+            _roundPoints = Time;
+            _score += _roundPoints;
+        }
+
+        await Http.GetFromJsonAsync<GamesQuestion>($"api/Games/{QuizParams.Mode}").ContinueWith(async gameQustion =>
+        {
+            await Task.Delay(_timeBetweenRounds).ContinueWith(async _ =>
+            {
+                if (_questions == _roundsTotal)
+                {
+                    QuizParams.Score = _score;
+                    await _timer.DisposeAsync();
+                    _navigationManager.NavigateTo($"summary");
+                    return;
+                }
+
+                Time = _roundTime * _factor;
+
+                _gamesQuestion = await gameQustion;
+
+                if (_gamesQuestion.ImgUrl.Length == 1 || _score < _hintCost && _freeHintAvailable == false)
+                {
+                    _hintDisabled = "btn btn-danger disabled";
+                }
+                else
+                    _hintDisabled = "btn btn-success";
+
+                _questions++;
+                _hint = 0;
+                _isLoading = false;
+            });
+        });
+    }
+
+    private bool _freezeTime = true;
+    private bool _imgChanging;
+
+    private void OnImgLoad()
+    {
+        if (_imgChanging)
+        {
+            _imgChanging = false;
+            return;
+        }
+
+        _timerColor = "";
+
+        Time = _roundTime * _factor;
+        _freezeTime = false;
+    }
+
+    private int _hintCost = 300;
+
+    private void Hint()
+    {
+        if (Time <= 6 * _factor)
+        {
+            if (_hintDisabled.Contains("danger"))
+                _hintDisabled += "btn btn-danger disabled";
+            else
+                _hintDisabled += "btn btn-success disabled";
+
+            return;
+        }
+
+        _imgChanging = true;
+
+        _score = _freeHintAvailable ? _score : _score -= _hintCost;
+
+        _freeHintAvailable = false;
+
+        if (_score < _hintCost && _freeHintAvailable == false)
+        {
+            _hintDisabled = "btn btn-danger disabled";
+        }
+        else
+            _hintDisabled = "btn btn-success";
+
+        if (_hint < _gamesQuestion.ImgUrl.Length - 1)
+            _hint++;
+        else _hint = 0;
+
+        if (Time >= 6 * _factor)
+        {
+            Time -= 3 * _factor;
+        }
+        else
+        {
+            Time = 0;
+            _timerColor = "color: red";
+        }
+    }
+
+    private string GetClass(string game)
+    {
+        if (game == _gamesQuestion.CorrectGame)
+            return "correct";
+        if (game == _selectedGame)
+            return "wrong";
+        return "";
+    }
+
+    [Parameter]
+    public int Time { get; set; }
+    private Timer _timer;
+    private int _factor = 100;
+
+    public void StartTimerAsync()
+    {
+        _timer = new Timer(async _ =>
+        {
+            if (_freezeTime == false)
+                Time--;
+
+            if (Time <= 6 * _factor)
+            {
+                if (_hintDisabled.Contains("danger"))
+                    _hintDisabled += "btn btn-danger disabled";
+                else
+                    _hintDisabled += "btn btn-success disabled";
+            }
+
+            if (Time <= 5 * _factor)
+                _timerColor = "color: red";
+            else
+                _timerColor = "";
+
+            if (Time == 0) await Answer("");
+
+            StateHasChanged();
+        }, new AutoResetEvent(false), 1000 / _factor, 1000 / _factor);
+    }
+
+    private string GetTime()
+    {
+        var time = Time.ToString();
+
+        if (time.Length == 4)
+            return time.Insert(2, ".");
+        if (time.Length == 3)
+            return time.Insert(1, ".");
+
+        return time.Insert(0, "0.");
+    }
+
+}

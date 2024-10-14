@@ -1,0 +1,250 @@
+﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,400italic);
+
+html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+h1:focus {
+    outline: none;
+}
+
+a, .btn-link {
+    color: #0071c1;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+    margin: 20px;
+}
+
+.content {
+    padding-top: 1.1rem;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid red;
+}
+
+.validation-message {
+    color: red;
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+.blazor-error-boundary {
+    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
+    padding: 1rem 1rem 1rem 3.7rem;
+    color: white;
+}
+
+.blazor-error-boundary::after {
+    content: "An error has occurred."
+}
+
+/* (A) WRAPPER */
+#quizWrap {
+    max-width: 800px;
+    margin: 0 auto;
+    /* RECOMMENDED FIXED HEIGHT IF YOU HAVE CONTENT BELOW THE QUIZ */
+    /* SO THAT PAGE LAYOUT DOES NOT "JUMP" */
+    /* height: 250px; */
+}
+
+/* (B) QUESTION */
+#quizQn {
+    padding: 20px;
+    background: #4c93ba;
+    color: #fff;
+    font-size: 24px;
+    border-radius: 10px;
+}
+
+/* (C) ANSWERS */
+.quizAns {
+    margin: 10px 0;
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 10px;
+}
+.quizAns input[type=radio] { display: none; }
+.quizAns label {
+    background: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    text-align: center;
+}
+.quizAns label.correct {
+    background: #d8ffc4;
+    border: 1px solid #60a03f;
+}
+.quizAns label.wrong {
+    background: #ffe8e8;
+    border: 1px solid #c78181;
+}
+
+* {
+    font-family: arial, sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    align-items: center; justify-content: center;
+    min-height: 100vh;
+    background-image: url(https://images.unsplash.com/photo-1554034483-04fda0d3507b?crop=entropy&cs=srgb&fm=jpg&ixid=MnwxNDU4OXwwfDF8cmFuZG9tfHx8fHx8fHx8MTY0ODAwMTA1MQ&ixlib=rb-1.2.1&q=85);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    text-align: center;
+}
+
+/* WIDGET */
+.widget-wrap {
+    width: 800px;
+    padding: 30px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+#round-points {
+    animation: round-points-move 1s infinite;
+}
+
+@keyframes round-points-move {
+    0% {font-size: 30px;}
+    50% {font-size: 60px;}
+    100% {font-size: 30px;}
+}
+
+
+.table-ranking {
+    background-color: #12110f;
+    font-family: droid serif;
+}
+
+/** Rank Table Color */
+table.tidy_table td:nth-child(1) {
+    border-right: 1px solid #EEEEEE;
+    color: #5097e7;
+}
+
+/** Score Table Color */
+table.tidy_table td:nth-last-child(1) {
+    border-right: none;
+    letter-spacing: .5px;
+    font-family: droid serif;
+    color: #51c81b;
+}
+
+/** Background of Table */
+table.tidy_table th, table.tidy_table td {
+    padding: 6px 20px 6px 20px;
+    text-align: left;
+
+}
+
+table.tidy_table thead {
+    background: #eee;
+    color:#000;
+    border: 1px solid #474747;
+    text-transform: uppercase;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    letter-spacing: 1px;
+}
+
+table.tidy_table {
+    border-collapse: collapse;
+    border: 1px solid #474747;
+    cursor: pointer;
+    white-space: nowrap;
+    width: 100%;
+}
+
+/** Rank Column */
+table.tidy_table th:nth-child(1), table.tidy_table td:nth-child(1) {
+    width: 10px;
+    border-right: 1px solid #b8b8b8;
+
+}
+
+table.tidy_table th, table.tidy_table td {
+    padding: 6px 20px 6px 20px;
+    border-right: 1px solid #b8b8b8;
+}
+
+table.tidy_table td:nth-last-child(1) {
+    border-right: none;
+    letter-spacing:.5px;
+    font-family: droid serif;
+}
+
+.table-ranking a {
+    color:#fff;
+    text-decoration: none;
+    -webkit-transition: all .2s ease-in;
+    -moz-transition: all .2s ease-in;
+    transition: all .2s ease-in;
+}
+
+.table-ranking a:hover,
+.table-ranking a:focus {
+    text-decoration: none;
+    color: #ff0000;
+    background:none;
+}
+
+::-moz-selection {
+    text-shadow: none;
+    background: #fcfcfc;
+    background: rgba(0,0,0,.5);
+}
+
+::selection {
+    text-shadow: none;
+    background: #fcfcfc;
+    background: rgba(0,0,0,.5);
+}
+
+.center-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+}
+
+.no-select {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Opera and Firefox */
+}

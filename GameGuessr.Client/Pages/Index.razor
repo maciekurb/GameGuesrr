@@ -1,0 +1,58 @@
+﻿@page "/"
+@using GameGuessr.Client.Infrastructure
+@using GameGuessr.Shared
+@using GameGuessr.Client.Application
+@inject QuizParams QuizParams
+@inject NavigationManager _navigationManager;
+@inject RankingService _rankingService
+
+<PageTitle>Index</PageTitle>
+
+<Ranking Mode="@QuizParams.Mode"/>
+
+<div class="no-select">
+    <div class="form-check-inline">
+        <input class="form-check-input" type="radio" name="gameMode" id="topGames" checked @onclick="@(() => SetMode(GameMode.TopGames))">
+        <label class="form-check-label" for="topGames">
+            Top games(easy)
+        </label>
+    </div>
+    <div class="form-check-inline">
+        <input class="form-check-input" type="radio" name="gameMode" id="normal" @onclick="@(() => SetMode(GameMode.All))">
+        <label class="form-check-label" for="normal">
+            All games(medium)
+        </label>
+    </div>
+    <div class="form-check-inline">
+        <input class="form-check-input" type="radio" name="gameMode" id="relatedGames" @onclick="@(() => SetMode(GameMode.RelatedGames))">
+        <label class="form-check-label" for="relatedGames">
+            Related games(HARD)
+        </label>
+    </div>
+    <div class="form-check-inline">
+        <input class="form-check-input" type="radio" name="gameMode" id="ostGames" @onclick="@(() => SetMode(GameMode.Soundtrack))">
+        <label class="form-check-label" for="ostGames">
+            Games soundtracks
+        </label>
+    </div>
+
+    <div class="col align-self-center">
+        <button class="btn btn-primary" @onclick="@(() => _navigationManager.NavigateTo($"quiz"))">Start</button>
+    </div>
+</div>
+
+
+@code
+{
+    protected override void OnInitialized()
+    {
+        QuizParams.Mode = GameMode.TopGames;
+        base.OnInitialized();
+    }
+
+    private void SetMode(GameMode mode)
+    {
+        QuizParams.Mode = mode;
+        _rankingService.CallRequestRefresh(mode);
+    }
+}

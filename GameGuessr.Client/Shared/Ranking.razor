@@ -1,0 +1,61 @@
+﻿@using GameGuessr.Shared
+@using GameGuessr.Client.Application
+@inject HttpClient _http
+@inject RankingService _rankingService
+@inject LoaderService _loaderService;
+
+<div class="table-ranking" style="margin: 50px">
+    <table class="tidy_table">
+        <thead>
+        <tr>
+            <th title="Date">Date</th>
+            <th title="Nick">Nick</th>
+            <th title="Score">Score</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        @foreach (var rankingItem in _rankingItems)
+        {
+            <tr>
+                <td title="@rankingItem.Date">@rankingItem.Date</td>
+                <td title="@rankingItem.Player">
+                    <a href="">@rankingItem.Player</a>
+                </td>
+                <td title="@rankingItem.Score">@rankingItem.Score</td>
+            </tr>
+        }
+
+        </tbody>
+    </table>
+</div>
+
+
+@code {
+    [Parameter]
+    public GameMode Mode { get; set; }
+
+    private List<RankingItem> _rankingItems = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _rankingService.RefreshRequested += RefreshData;
+        await _http.GetFromJsonAsync<List<RankingItem>>($"api/Rankings/{Mode}").ContinueWith(async items =>
+        {
+            _rankingItems = await items;
+            _loaderService.SetLoaderState(false);
+        });
+    }
+
+    private async void RefreshData(GameMode mode)
+    {
+        await _http.GetFromJsonAsync<List<RankingItem>>($"api/Rankings/{mode}").ContinueWith(async items =>
+        {
+            _rankingItems = await items;
+            _loaderService.SetLoaderState(false);
+        });
+        StateHasChanged();
+    }
+
+}
+
